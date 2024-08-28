@@ -67,7 +67,7 @@ fun starter() {
 
 fun main(args: Array<String>) {
     if(args.isNotEmpty() && args[0] == "--version") {
-        println("v1.0.0-a")
+        println("v1.1")
         stop()
     }
     logger.logs("프로그램 시작중입니다... by apwlq")
