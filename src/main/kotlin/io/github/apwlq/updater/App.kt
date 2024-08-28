@@ -62,6 +62,7 @@ fun starter() {
 
     val startCommand = config.getString("start_command")
     Exec().exec(startCommand)
+    stop()
 }
 
 fun main(args: Array<String>) {
