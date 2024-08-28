@@ -27,7 +27,7 @@ tasks.withType<Jar> {
     manifest {
         attributes(
             mapOf(
-                "Main-Class" to "$group.${rootProject.name}.AppKt" // Main-Class를 실제 진입점으로 설정
+                "Main-Class" to "io.github.apwlq.updater.AppKt" // Main-Class를 실제 진입점으로 설정
             )
         )
     }

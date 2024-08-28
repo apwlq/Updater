@@ -25,7 +25,7 @@ class Updater(private val currentVersion: String?) {
                 logger.logs("현재 최신 버전을 사용 중: $currentVersion")
             }
         } else {
-            logger.logs(LogLevel.ERROR,"업데이트 서버에 접근할 수 없습니다.")
+            logger.logs(LogLevel.ERROR,"업데이트 확인에 실패하였습니다.")
         }
     }
 
@@ -44,8 +44,14 @@ class Updater(private val currentVersion: String?) {
                 val jsonObject = JSONObject(jsonData)
                 jsonObject.getString("tag_name") // Assuming the tag_name represents the version
             }
-        } catch (e: Exception) {
-            logger.logs(LogLevel.ERROR,"업데이트 서버에 접근할 수 없습니다.")
+        } catch (e: IOException) {
+            logger.logs(LogLevel.ERROR,"업데이트 서버에 접근할 수 없거나 리미트가 초과되었습니다.")
+            logger.logs(LogLevel.ERROR,"$e")
+            null
+        }
+        catch (e: Error) {
+            logger.logs(LogLevel.WARN,"업데이트 서버에 접근할 수 없습니다.")
+            logger.logs(LogLevel.WARN,"$e")
             null
         }
     }
@@ -152,6 +158,7 @@ class Updater(private val currentVersion: String?) {
 
             if (success) {
                 logger.logs(LogLevel.INFO, "업데이트 완료! 파일 이름이 ${newFile.name}으로 변경되었습니다.")
+                starter()
             } else {
                 logger.logs(LogLevel.ERROR, "파일 이름 변경에 실패했습니다.")
             }
