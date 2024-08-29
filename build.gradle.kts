@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "io.github.apwlq"
-version = "1.1"
+version = "1.2"
 
 repositories {
     mavenCentral()
@@ -21,16 +21,14 @@ dependencies {
 
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
     archiveFileName.set("${rootProject.name}.jar")
-}
-
-tasks.withType<Jar> {
     manifest {
         attributes(
-            mapOf(
-                "Main-Class" to "io.github.apwlq.updater.AppKt" // Main-Class를 실제 진입점으로 설정
-            )
+            "Main-Class" to "io.github.apwlq.updater.AppKt", // Main-Class를 실제 진입점으로 설정
+            "Implementation-Version" to project.version // version을 MANIFEST에 추가
         )
     }
+    // 설정한 경로로 JAR 파일 출력
+    destinationDirectory.set(file("./jar"))
 }
 
 kotlin {

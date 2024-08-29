@@ -20,12 +20,12 @@ class Updater(private val currentVersion: String?) {
         if (latestVersion != null) {
             if (isUpdateAvailable(latestVersion)) {
                 logger.logs("최신 버전: $latestVersion")
-                update(repoUrl, downloadFile) // Auto-update enabled
+                update(repoUrl, downloadFile)
             } else {
                 logger.logs("현재 최신 버전을 사용 중: $currentVersion")
             }
         } else {
-            logger.logs(LogLevel.ERROR,"업데이트 확인에 실패하였습니다.")
+            logger.logs(LogLevel.ERROR, "업데이트 확인에 실패하였습니다.")
         }
     }
 
@@ -45,21 +45,18 @@ class Updater(private val currentVersion: String?) {
                 jsonObject.getString("tag_name") // Assuming the tag_name represents the version
             }
         } catch (e: IOException) {
-            logger.logs(LogLevel.ERROR,"업데이트 서버에 접근할 수 없거나 리미트가 초과되었습니다.")
-            logger.logs(LogLevel.ERROR,"$e")
+            logger.logs(LogLevel.ERROR, "업데이트 서버에 접근할 수 없거나 리미트가 초과되었습니다.")
+            logger.logs(LogLevel.ERROR, "$e")
             null
-        }
-        catch (e: Error) {
-            logger.logs(LogLevel.WARN,"업데이트 서버에 접근할 수 없습니다.")
-            logger.logs(LogLevel.WARN,"$e")
+        } catch (e: Exception) {
+            logger.logs(LogLevel.WARN, "업데이트 서버에 접근할 수 없습니다.")
+            logger.logs(LogLevel.WARN, "$e")
             null
         }
     }
 
     private fun parseRepoUrl(repoUrl: String): Pair<String, String>? {
-        // Remove ".git" if it is present
         val cleanUrl = repoUrl.removeSuffix(".git")
-        // Extract owner and repo name
         val regex = Regex("https://github.com/([^/]+)/([^/]+)")
         val matchResult = regex.find(cleanUrl)
         return matchResult?.destructured?.toList()?.let { (owner, repo) -> owner to repo }
@@ -79,7 +76,7 @@ class Updater(private val currentVersion: String?) {
 
         try {
             client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) throw IOException("예상치 못한 오류: $response")
+                if (!response.isSuccessful) throw IOException("Unexpected code $response")
 
                 val jsonData = response.body?.string() ?: return updateFailed()
                 val jsonObject = JSONObject(jsonData)
@@ -99,27 +96,37 @@ class Updater(private val currentVersion: String?) {
                     downloadFile(downloadUrl, downloadFile)
                     updateSuccess(downloadFile)
                 } else {
-                    logger.logs(LogLevel.ERROR,"($downloadFile) 파일을 찾을 수 없습니다.")
+                    logger.logs(LogLevel.ERROR, "($downloadFile) 파일을 찾을 수 없습니다.")
                     updateFailed()
                 }
             }
-        } catch (e: Error) {
-            logger.logs(LogLevel.ERROR,"업데이트 중 오류: ${e.message}")
+        } catch (e: IOException) {
+            logger.logs(LogLevel.ERROR, "업데이트 중 오류: ${e.message}")
+            updateFailed()
+        } catch (e: Exception) {
+            logger.logs(LogLevel.ERROR, "예기치 않은 오류 발생: ${e.message}")
+            updateFailed()
         }
     }
 
     private fun downloadFile(url: String, outputFileName: String) {
         val request = Request.Builder().url(url).build()
 
-        client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) throw IOException("파일을 다운로드하지 못했습니다: $response")
+        try {
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) throw IOException("파일을 다운로드하지 못했습니다: $response")
 
-            val file = File(outputFileName)
-            response.body?.byteStream()?.use { inputStream ->
-                FileOutputStream(file).use { outputStream ->
-                    copyStream(inputStream, outputStream)
+                val file = File(outputFileName)
+                response.body?.byteStream()?.use { inputStream ->
+                    FileOutputStream(file).use { outputStream ->
+                        copyStream(inputStream, outputStream)
+                    }
                 }
             }
+        } catch (e: IOException) {
+            logger.logs(LogLevel.ERROR, "파일 다운로드 실패: ${e.message}")
+        } catch (e: Exception) {
+            logger.logs(LogLevel.ERROR, "예기치 않은 오류 발생: ${e.message}")
         }
     }
 
@@ -134,10 +141,9 @@ class Updater(private val currentVersion: String?) {
 
     private fun updateSuccess(downloadFile: String) {
         logger.logs(LogLevel.INFO, "업데이트 완료!")
-        val oldFile = File(downloadFile)  // 다운로드된 파일 이름
-        val newFile = File("runner.jar") // 변경할 파일 이름
+        val oldFile = File(downloadFile)
+        val newFile = File("runner.jar")
 
-        // 절대 경로를 사용하여 파일 경로 확인
         val oldFilePath = oldFile.absolutePath
         val newFilePath = newFile.absolutePath
 
@@ -153,12 +159,9 @@ class Updater(private val currentVersion: String?) {
                 }
             }
 
-            // 파일 이름을 변경합니다.
             val success = oldFile.renameTo(newFile)
-
             if (success) {
                 logger.logs(LogLevel.INFO, "업데이트 완료! 파일 이름이 ${newFile.name}으로 변경되었습니다.")
-                starter()
             } else {
                 logger.logs(LogLevel.ERROR, "파일 이름 변경에 실패했습니다.")
             }
@@ -167,8 +170,7 @@ class Updater(private val currentVersion: String?) {
         }
     }
 
-
     private fun updateFailed() {
-        logger.logs(LogLevel.WARN,"업데이트 실패!")
+        logger.logs(LogLevel.WARN, "업데이트 실패!")
     }
 }

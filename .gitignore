@@ -45,3 +45,5 @@ bin/
 logs/
 config.yml
 runner.jar
+jar/
+.kotlin/
