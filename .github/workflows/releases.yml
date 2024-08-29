@@ -17,7 +17,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '21'  # Adjust to the version you need
-          distribution: 'adopt-openjdk'
+          distribution: 'temurin'  # Change to 'temurin'
 
       - name: Build with Gradle
         run: ./gradlew shadowJar
@@ -46,7 +46,7 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
