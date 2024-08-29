@@ -28,7 +28,7 @@ tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
         )
     }
     // 설정한 경로로 JAR 파일 출력
-    destinationDirectory.set(file("./jar"))
+//    destinationDirectory.set(file("./jar"))
 }
 
 kotlin {
