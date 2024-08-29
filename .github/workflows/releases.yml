@@ -28,8 +28,8 @@ jobs:
       - name: Create Release and Upload Asset
         uses: marvinpinto/action-automatic-releases@latest
         with:
-          title: ${{ github.ref }}  # Use the tag as the release title
-          automatic_release_tag: ${{ github.ref }}
+          title: ${{ github.ref_name }}  # Use the tag name as the release title
+          automatic_release_tag: ${{ github.ref_name }}  # Use the tag name only
           repo_token: ${{ secrets.TOKEN }}  # Use custom token
           files: |
             build/libs/*.jar
