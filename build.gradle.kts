@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "io.github.apwlq"
-version = "1.2"
+version = "v1.3"
 
 repositories {
     mavenCentral()
