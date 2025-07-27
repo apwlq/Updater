@@ -8,6 +8,9 @@ version = "v1.6"
 
 repositories {
     mavenCentral()
+    maven {
+        url = uri("https://api.simplyrin.net/maven/")
+    }
 }
 
 dependencies {
