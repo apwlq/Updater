@@ -22,7 +22,7 @@ object Logs {
         val caller = stackTrace.firstOrNull { it.className != Thread::class.java.name && !it.className.contains("LoggerStream") } ?: return
 
         val formatted = "[${date} ${time}] [$level] ${caller.className}:${caller.lineNumber} $message"
-        kotlin.io.println(formatted) // 실제 콘솔 출력
+        println(formatted) // 실제 콘솔 출력
         saveLog(level, message, caller.className, caller.lineNumber)
     }
 
@@ -36,7 +36,7 @@ object Logs {
 
         val logDirectory = File("./logs")
         if (!logDirectory.exists() && !logDirectory.mkdirs()) {
-            kotlin.io.println("Failed to create log directory.")
+            println("Failed to create log directory.")
             return
         }
 
