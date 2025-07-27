@@ -15,17 +15,17 @@ class Updater(private val currentVersion: String?) {
     private val client = OkHttpClient()
 
     fun checkUpdate(repoUrl: String, downloadFile: String) {
-        logger.logs("업데이트 확인 중...")
+        logger.info("업데이트 확인 중...")
         val latestVersion = fetchLatestVersion(repoUrl)
         if (latestVersion != null) {
             if (isUpdateAvailable(latestVersion)) {
-                logger.logs("최신 버전: $latestVersion")
+                logger.info("최신 버전: $latestVersion")
                 update(repoUrl, downloadFile)
             } else {
-                logger.logs("현재 최신 버전을 사용 중: $currentVersion")
+                logger.info("현재 최신 버전을 사용 중: $currentVersion")
             }
         } else {
-            logger.logs(LogLevel.ERROR, "업데이트 확인에 실패하였습니다.")
+            logger.error("업데이트 확인에 실패하였습니다.")
         }
     }
 
@@ -45,8 +45,8 @@ class Updater(private val currentVersion: String?) {
                 jsonObject.getString("tag_name") // Assuming the tag_name represents the version
             }
         } catch (e: IOException) {
-            logger.logs(LogLevel.ERROR, "업데이트 서버에 접근할 수 없거나 리미트가 초과되었습니다.")
-            logger.logs(LogLevel.ERROR, "$e")
+            logger.error("업데이트 서버에 접근할 수 없거나 리미트가 초과되었습니다.")
+            logger.error("$e")
             null
         } catch (e: Exception) {
             logger.logs(LogLevel.WARN, "업데이트 서버에 접근할 수 없습니다.")
@@ -67,7 +67,7 @@ class Updater(private val currentVersion: String?) {
     }
 
     private fun update(repoUrl: String, downloadFile: String) {
-        logger.logs("업데이트 중...")
+        logger.info("업데이트 중...")
         val (owner, repo) = parseRepoUrl(repoUrl) ?: return updateFailed()
 
         val request = Request.Builder()
@@ -96,15 +96,15 @@ class Updater(private val currentVersion: String?) {
                     downloadFile(downloadUrl, downloadFile)
                     updateSuccess(downloadFile)
                 } else {
-                    logger.logs(LogLevel.ERROR, "($downloadFile) 파일을 찾을 수 없습니다.")
+                    logger.error("($downloadFile) 파일을 찾을 수 없습니다.")
                     updateFailed()
                 }
             }
         } catch (e: IOException) {
-            logger.logs(LogLevel.ERROR, "업데이트 중 오류: ${e.message}")
+            logger.error("업데이트 중 오류: ${e.message}")
             updateFailed()
         } catch (e: Exception) {
-            logger.logs(LogLevel.ERROR, "예기치 않은 오류 발생: ${e.message}")
+            logger.error("예기치 않은 오류 발생: ${e.message}")
             updateFailed()
         }
     }
@@ -124,9 +124,9 @@ class Updater(private val currentVersion: String?) {
                 }
             }
         } catch (e: IOException) {
-            logger.logs(LogLevel.ERROR, "파일 다운로드 실패: ${e.message}")
+            logger.error("파일 다운로드 실패: ${e.message}")
         } catch (e: Exception) {
-            logger.logs(LogLevel.ERROR, "예기치 않은 오류 발생: ${e.message}")
+            logger.error("예기치 않은 오류 발생: ${e.message}")
         }
     }
 
@@ -140,30 +140,30 @@ class Updater(private val currentVersion: String?) {
     }
 
     private fun updateSuccess(downloadFile: String) {
-        logger.logs(LogLevel.INFO, "업데이트 완료!")
+        logger.info("업데이트 완료!")
         val oldFile = File(downloadFile)
         val newFile = File("runner.jar")
 
         val oldFilePath = oldFile.absolutePath
         val newFilePath = newFile.absolutePath
 
-        logger.logs(LogLevel.INFO, "변경 전 파일 경로: $oldFilePath")
-        logger.logs(LogLevel.INFO, "변경 후 파일 경로: $newFilePath")
+        logger.info("변경 전 파일 경로: $oldFilePath")
+        logger.info("변경 후 파일 경로: $newFilePath")
 
         if (oldFile.exists()) {
             if (newFile.exists()) {
                 logger.logs(LogLevel.WARN, "대상 파일이 이미 존재합니다. 기존 파일을 삭제합니다.")
                 if (!newFile.delete()) {
-                    logger.logs(LogLevel.ERROR, "대상 파일 삭제에 실패했습니다.")
+                    logger.error("대상 파일 삭제에 실패했습니다.")
                     return
                 }
             }
 
             val success = oldFile.renameTo(newFile)
             if (success) {
-                logger.logs(LogLevel.INFO, "업데이트 완료! 파일 이름이 ${newFile.name}으로 변경되었습니다.")
+                logger.info("업데이트 완료! 파일 이름이 ${newFile.name}으로 변경되었습니다.")
             } else {
-                logger.logs(LogLevel.ERROR, "파일 이름 변경에 실패했습니다.")
+                logger.error("파일 이름 변경에 실패했습니다.")
             }
         } else {
             logger.logs(LogLevel.WARN, "변경할 파일이 존재하지 않습니다.")
